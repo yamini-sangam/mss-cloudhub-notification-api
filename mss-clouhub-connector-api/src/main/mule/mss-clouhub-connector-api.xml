@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:compression="http://www.mulesoft.org/schema/mule/compression"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3b4f1c65-595f-40a6-afba-644a893ef744" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<cloudhub:config name="CloudHub_Config" doc:name="CloudHub Config" doc:id="87e866d0-92e8-47fc-8755-2e0fa4dc0277" >
+		<cloudhub:connection username="yamini1" password="Yamini@2021" environment="2e0c0fc4-f193-4e78-a498-32f56dfd88ba" />
+	</cloudhub:config>
+	<flow name="mss-clouhub-connector-apiFlow" doc:id="9882faac-7fc4-457d-bd42-2790a4f2e058" >
+		<http:listener doc:name="Listener" doc:id="7b4e039e-7e2f-4d2c-ac61-a9637b00fbb3" config-ref="HTTP_Listener_config" path="/cloudhubTest"/>
+		<cloudhub:create-notification doc:name="Create Notification" doc:id="a433c718-5b59-4046-977f-f97c5382d107" config-ref="CloudHub_Config" domain="sample-notification-test-api" priority="ERROR">
+			<cloudhub:message ><![CDATA[#["Error occured in the Application"]]]></cloudhub:message>
+		</cloudhub:create-notification>
+		<ee:transform doc:name="response" doc:id="b52ed825-22ac-4de7-a903-7aca1ac4d176" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Notification sent"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
